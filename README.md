@@ -1,147 +1,98 @@
-AWS Multi-Tier Web Application - Ultimate Project
+AWS Multi-Tier Web Application – Ultimate Project
 
-A production-ready, highly available multi-tier web application deployed on AWS, demonstrating secure architecture, load balancing, and operational best practices.
+Project Type: Production-Ready Multi-Tier Web Application
+AWS Region: us-east-1 (N. Virginia)
+Status: Fully Operational
 
-Architecture (VPC)
+1. Project Overview
 
-UltimateVPC - Custom VPC with multi-AZ deployment
+This project demonstrates the deployment of a highly available, secure, and scalable multi-tier web application on AWS. It showcases best practices in cloud architecture, load balancing, and operational excellence.
 
-VPC CIDR: 10.0.0.0/16
+Key Features:
 
-Region: us-east-1 (N. Virginia)
+Multi-AZ deployment for high availability
+
+Private EC2 instances with no public IPs for security
+
+Application Load Balancer (ALB) for scalability
+
+NAT Gateway for outbound internet access from private subnets
+
+Operational access via AWS Systems Manager (SSM)
+
+Health checks ensuring reliable service delivery
+
+2. Architecture
+VPC and Subnets
+
+VPC Name: UltimateVPC
+
+CIDR: 10.0.0.0/16
 
 Availability Zones: 2 (us-east-1a, us-east-1b)
 
-Subnet Architecture:
-Public Subnets (Internet-facing):
+Subnets:
 
-Public-Subnet-1: 10.0.1.0/24 (us-east-1a)
+Subnet Type	Name	CIDR	AZ
+Public	Public-Subnet-1	10.0.1.0/24	us-east-1a
+Public	Public-Subnet-2	10.0.2.0/24	us-east-1b
+Private	Private-Subnet-1	10.0.3.0/24	us-east-1a
+Private	Private-Subnet-2	10.0.4.0/24	us-east-1b
+Security
 
-Public-Subnet-2: 10.0.2.0/24 (us-east-1b)
-
-Private Subnets (Application tier):
-
-Private-Subnet-1: 10.0.3.0/24 (us-east-1a)
-
-Private-Subnet-2: 10.0.4.0/24 (us-east-1b)
-
-Security (Private EC2 + Security Groups)
-
-Private Instance Architecture
-WebServer-1:
-
-Instance ID: i-013f08763dc6bd478
+WebServer-1 (Private EC2)
 
 Instance Type: t3.micro
 
 Private IP: 10.0.3.46
 
-No Public IP - Isolated in private subnet
+No Public IP (isolated in private subnet)
 
-Placement: Private-Subnet-1 (us-east-1a)
+Security Groups allow traffic only from ALB
 
-Security Groups:
+SSM access enabled (no SSH keys required)
 
-Instances in private subnets with no direct internet access
+Connectivity
 
-Security groups configured for traffic from ALB only
-
-Inbound traffic restricted to port 80 from ALB security group
-
-SSM access enabled via IAM role (no SSH keys required)
-
-Connectivity (NAT Gateway + Route Tables)
-
-NAT Gateway:
-
-Ultimate-NAT
-
-NAT Gateway ID: nat-034dcdbedd517e456
-
-Type: Public
-
-Elastic IP: 52.1.226 (allocated)
-
-Placement: Public-Subnet-1
-
-Purpose: Enables private instances to access internet for updates
+NAT Gateway: Ultimate-NAT (Public Subnet-1)
 
 Route Tables:
 
-Public-RT (rtb-051a3ff998da6a3e9): Associated with Public-Subnet-1, Public-Subnet-2
+Public RT: 0.0.0.0/0 → Internet Gateway
 
-Routes: 10.0.0.0/16 → local, 0.0.0.0/0 → Internet Gateway
+Private RT: 0.0.0.0/0 → NAT Gateway
 
-Private-RT (rtb-03ef8b89416c65332): Associated with Private-Subnet-1, Private-Subnet-2
+Load Balancing
 
-Routes: 10.0.0.0/16 → local, 0.0.0.0/0 → nat-034dcdbedd517e456 (NAT Gateway)
+Application Load Balancer (Ultimate-ALB)
 
-Entry Point (Application Load Balancer)
+Scheme: Internet-facing
 
-Ultimate-ALB:
+Protocol: HTTP (Port 80)
 
-Type: Application Load Balancer
+DNS: Ultimate-ALB-852146662.us-east-1.elb.amazonaws.com
 
-Scheme: internet-facing
-
-DNS Name: Ultimate-ALB-852146662.us-east-1.elb.amazonaws.com
-
-Load Balancer ARN: arn:aws:elasticloadbalancing:us-east-1:657429748140:loadbalancer/app/Ultimate-ALB/b493e5c78ef2798d
-
-Status: Active
-
-Availability Zones: us-east-1a, us-east-1b
-
-Protocol: HTTP, Port: 80
-
-VPC: vpc-08fbb8b6ed3d6c5df (UltimateVPC)
-
-Health Check (Target Group = Healthy)
-
-WebServer-TG:
-
-Target Group ARN: arn:aws:elasticloadbalancing:us-east-1:657429748140:targetgroup/WebServer-TG/851758a0c3cddf65
-
-Target Type: Instance
-
-Protocol: HTTP:80, Protocol Version: HTTP1
+Target Group: WebServer-TG (WebServer-1)
 
 Health Check Configuration:
 
-Path: /
-
-Port: Traffic port (80)
-
 Protocol: HTTP
 
-Healthy threshold: 5 consecutive successes
-
-Unhealthy threshold: 2 consecutive failures
-
-Timeout: 5 seconds
+Path: /
 
 Interval: 30 seconds
 
-Success codes: 200
+Healthy threshold: 5
+
+Unhealthy threshold: 2
 
 Target Status:
 
-Total targets: 1
-
-Healthy: 1
+Healthy: 1 / 1
 
 Unhealthy: 0
 
-Registered Target: i-013f08763dc6bd478 (WebServer-1)
-
-Health Status: Available and passing all health checks
-
-Live Application (Browser Access)
-
-Live Website URL:
-http://Ultimate-ALB-852146662.us-east-1.elb.amazonaws.com
-
-Application Stack:
+3. Application Stack
 
 Web Server: Apache HTTP Server (httpd)
 
@@ -153,90 +104,34 @@ Architecture: x86_64
 
 Server API: FPM/FastCGI
 
-Application Status:
+Performance Metrics:
 
-Website accessible via ALB DNS name
+Requests Served: 18,655+
 
-PHP info page loads successfully
+Response Time: 0.072 requests/sec
 
-Application serving 18,655+ requests
+Bytes Served: 5.2 KB/sec
 
-Response time: 0.072 requests/sec
+Website URL:
+http://Ultimate-ALB-852146662.us-east-1.elb.amazonaws.com
 
-Bytes served: 5.2KB/sec
+4. Operational Access
 
-Operational Access (AWS Systems Manager - SSM)
+AWS Systems Manager (SSM):
 
-IAM Role Configuration:
+IAM Role: EC2-SSM-Role with AmazonSSMManagedInstanceCore
 
-EC2-SSM-Role, Policy: AmazonSSMManagedInstanceCore
+Enables browser-based shell access without SSH or bastion host
 
-Purpose: Enables Session Manager access without SSH
+Full audit logging in CloudWatch
 
-Attached to: WebServer-1
+Connection via EC2 Console → Session Manager
 
-Session Manager Benefits:
+5. Troubleshooting & Fixes
 
-Browser-based shell access
-
-No SSH keys required
-
-No bastion host needed
-
-No public IP required
-
-Full audit trail in CloudWatch Logs
-
-Centralized access management via IAM
-
-Connection Method:
-
-EC2 Console → WebServer-1 → Connect → Session Manager tab → Connect
-
-Browser-based terminal opens instantly
-
-Fix Proof (Apache httpd Running)
-
-Service Status Verification:
-
-sudo systemctl status httpd
-
-
-Output Confirmation:
-
-httpd.service - The Apache HTTP Server
-
-Loaded: loaded (/usr/lib/systemd/system/httpd.service; enabled; preset: disabled)
-
-Active: active (running) since Fri 2026-01-09 07:28:06 UTC; 2 days ago
-
-Main PID: 21915 (httpd)
-
-Status: "Total requests: 18655; Idle/Busy workers 100/0; Requests/sec: 0.072; Bytes served/sec: 5.2KB/sec"
-
-Key Evidence:
-
-Status: active (running)
-
-Enabled: Starts automatically on boot
-
-Port: Listening on port 80
-
-Uptime: Running for 2+ days
-
-Requests Served: 18,655 total requests
-
-Workers: 100 idle workers ready to serve traffic
-
-Configuration: Server configured, listening on port 80
-
-Troubleshooting Steps Taken:
-
-Problem: 502 Bad Gateway - Target group showed unhealthy
-
-Root Cause: Apache was never installed (user data script failed)
-
-Solution:
+Issue: Target group showed unhealthy (502 Bad Gateway)
+Root Cause: Apache was not installed (user data script failed)
+Resolution:
 
 Created IAM role with SSM access
 
@@ -244,19 +139,17 @@ Connected via Session Manager
 
 Installed Apache and PHP: sudo dnf install -y httpd php
 
-Started service: sudo systemctl start httpd
+Started and enabled Apache service
 
-Enabled auto-start: sudo systemctl enable httpd
+Created PHP info page to verify deployment
 
-Created PHP info page: echo "<?php phpinfo(); ?>" | sudo tee /var/www/html/index.php
+Result: Target became healthy, application now live.
 
-Result: Target became healthy, application is now live
-
-Project Highlights
+6. Project Highlights
 
 High Availability: Multi-AZ deployment across 2 availability zones
 
-Security: Private instances with no public IPs
+Security: Private EC2 instances with no public IPs
 
 Scalability: Load balancer ready for multiple targets
 
@@ -266,44 +159,37 @@ Operational Excellence: SSM Session Manager for secure access
 
 Cost Optimization: NAT Gateway in single AZ, t3.micro instances
 
-Architecture Diagram Summary
+7. Architecture Diagram
+Internet → IGW → Ultimate-ALB (Public Subnets) 
+           ↓
+      Target Group (WebServer-TG)
+           ↓
+      WebServer-1 (Private Subnet)
+           ↓
+      NAT Gateway ← Private Route Table
+           ↓
+      Internet (outbound only)
 
-Internet → IGW → Ultimate-ALB (Public Subnets)
-  ↓
-Target Group (WebServer-TG)
-  ↓
-WebServer-1 (Private Subnet)
-  ↓
-NAT Gateway ← Private Route Table
-  ↓
-Internet (for outbound only)
+8. Deployment Verification
 
-Deployment Verified
-
-All components tested and verified operational:
-
-VPC and subnets created across 2 AZs
+VPC and subnets deployed across 2 AZs
 
 Internet Gateway attached
 
-NAT Gateway operational in public subnet
+NAT Gateway operational
 
-Route tables configured correctly
-
-Security groups properly configured
+Route tables and security groups configured correctly
 
 EC2 instance running in private subnet
 
-IAM role attached for SSM access
-
 Apache HTTP Server installed and running
 
-Application Load Balancer distributing traffic
+ALB distributing traffic to WebServer-TG
 
-Target Group health checks passing
+Health checks passing
 
-Live application accessible via browser
+Live application accessible
 
 Session Manager access confirmed
 
-Project Status: FULLY OPERATIONAL
+Project Status: Fully Operational
